@@ -67,7 +67,7 @@ function marcarOponente(passouPontas, ultimaJogada, possibilidade, extremos) {
     pontuacaoParcial -=
       passouPontas.has(lado) &&
       possibilidade.pedra.split("-").includes(lado.toString())
-        ? 10
+        ? 30
         : 0;
   }
 
@@ -78,7 +78,7 @@ function marcarOponente(passouPontas, ultimaJogada, possibilidade, extremos) {
         : ultimaJogada.pedra.split("-")[1];
 
     if (possibilidade.pedra.split("-").includes(ladoUltimaJogada)) {
-      pontuacaoParcial += 20;
+      pontuacaoParcial += 50;
     }
   }
 
