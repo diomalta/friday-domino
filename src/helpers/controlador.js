@@ -20,6 +20,7 @@ class Jogo {
     this.mesaParcial = new Set();
     this.frequenciaMao = new Map();
     this.frequenciaMesa = new Map();
+    this.pedrasDisponiveis = new Set();
   }
 }
 
@@ -119,7 +120,6 @@ function estrategiaPorFrequencia(possibilidade, extremos) {
 
   let pontuacao = 0;
 
-  // Verifica se a possibilidade se encaixa em algum dos extremos
   if (pedra.includes(mesaEsquerda) || pedra.includes(mesaDireita)) {
     const frequenciaEsquerda =
       controleJogo.frequenciaMao.get(mesaEsquerda.toString()) || 0;
@@ -130,7 +130,6 @@ function estrategiaPorFrequencia(possibilidade, extremos) {
     const frequenciaMesaDireita =
       controleJogo.frequenciaMesa.get(mesaDireita.toString()) || 0;
 
-    // Jogar pedras raras primeiro e bloquear adversários
     if (
       frequenciaMesaEsquerda < frequenciaMesaDireita &&
       pedra.includes(mesaEsquerda)
@@ -143,7 +142,6 @@ function estrategiaPorFrequencia(possibilidade, extremos) {
       pontuacao += 20;
     }
 
-    // Guardar pedras comuns para o final
     if (
       frequenciaEsquerda > frequenciaDireita &&
       pedra.includes(mesaEsquerda)
@@ -156,7 +154,6 @@ function estrategiaPorFrequencia(possibilidade, extremos) {
       pontuacao -= 10;
     }
 
-    // Prioriza jogar uma bucha se ambas as pontas forem iguais
     if (
       mesaEsquerda === mesaDireita &&
       pedra[0] === pedra[1] &&
@@ -164,13 +161,78 @@ function estrategiaPorFrequencia(possibilidade, extremos) {
     ) {
       pontuacao += 20;
     }
+
+    const freqTotal = pedra.map(
+      (num) =>
+        (controleJogo.frequenciaMao.get(num.toString()) || 0) +
+        (controleJogo.frequenciaMesa.get(num.toString()) || 0)
+    );
+
+    if (freqTotal.some((freq) => freq <= 2)) {
+      pontuacao += 20;
+    }
   }
 
   return pontuacao;
 }
 
+function simularDistribuicaoPedras(jogo, possibilidade) {
+  for (const pedra of jogo.mao) {
+    if (controleJogo.pedrasDisponiveis.has(pedra)) {
+      controleJogo.pedrasDisponiveis.delete(pedra);
+    }
+  }
+
+  for (const jogada of jogo.jogadas) {
+    if (controleJogo.pedrasDisponiveis.has(jogada.pedra)) {
+      controleJogo.pedrasDisponiveis.delete(jogada.pedra);
+    }
+  }
+
+  const distribuicoesPossiveis = new Map();
+  const jogadoresPadrao = [1, 2, 3, 4].filter((n) => n !== jogo.jogador);
+  let pontuacaoJogada = 0;
+  const pedraPossibilidade = possibilidade.pedra.split("-").map(Number);
+
+  for (const jogadorPadrao of jogadoresPadrao) {
+    const jogador = controleJogo.jogadores.get(jogadorPadrao);
+    distribuicoesPossiveis.set(
+      jogadorPadrao,
+      new Set(controleJogo.pedrasDisponiveis)
+    );
+
+    if (jogador) {
+      for (const ponta of jogador.passouPontas) {
+        const distribuicao = distribuicoesPossiveis.get(jogadorPadrao);
+        for (const pedra of distribuicao) {
+          const pedraSplit = pedra.split("-").map(Number);
+          if (pedraSplit.includes(ponta) || pedraSplit.includes(ponta)) {
+            distribuicao.delete(pedra);
+          }
+
+          if (
+            !pedraSplit.includes(pedraPossibilidade[0]) &&
+            !pedraSplit.includes(pedraPossibilidade[1])
+          ) {
+            pontuacaoJogada += 10;
+          }
+        }
+      }
+    }
+  }
+
+  return pontuacaoJogada;
+}
+
 export async function controlador(jogo, possibilidades) {
-  // Recalcular a frequência a cada rodada
+  if (controleJogo.rodada === 1) {
+    for (let i = 0; i <= 6; i++) {
+      for (let j = i; j <= 6; j++) {
+        controleJogo.pedrasDisponiveis.add(`${i}-${j}`);
+      }
+    }
+  }
+
   calcularFrequencia(jogo.mao, jogo.mesa);
 
   let proximoJogador = jogo.jogador;
@@ -217,7 +279,8 @@ export async function controlador(jogo, possibilidades) {
     let pontuacao = 0;
     const [mesaEsquerda, mesaDireita] = extremos(jogo.mesa);
 
-    // Seção parceiro
+    pontuacao += simularDistribuicaoPedras(jogo, possibilidade);
+
     const idParceiro = idJogador(jogo.jogador);
     if (controleJogo.jogadores.has(idParceiro)) {
       const parceiro = controleJogo.jogadores.get(idParceiro);
@@ -240,12 +303,9 @@ export async function controlador(jogo, possibilidades) {
           : 0;
     }
 
-    // Seção pedra com valor alto e bucha
     const pedra = possibilidade.pedra.split("-").map(Number);
     pontuacao += pedra[0] + pedra[1];
     pontuacao += pedra[0] === pedra[1] ? 100 : 0;
-
-    // Estratégia de bloqueio - tentar jogar pedras que podem bloquear adversários
 
     const idOponente = proximo(jogo.jogador);
     if (controleJogo.jogadores.has(idOponente)) {
@@ -271,7 +331,6 @@ export async function controlador(jogo, possibilidades) {
       );
     }
 
-    // Adiciona pontuação baseada na frequência dos números
     pontuacao += estrategiaPorFrequencia(possibilidade, [
       mesaEsquerda,
       mesaDireita,
