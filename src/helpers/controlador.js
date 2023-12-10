@@ -336,7 +336,15 @@ export async function controlador(jogo, possibilidades) {
       mesaDireita,
     ]);
 
-    console.log(pontuacao, pedra);
+    // Bônus por diversidade na mão
+    const minhaMao = [...jogo.mao].filter(
+      (pedra) => possibilidade.pedra !== pedra
+    );
+
+    const numerosUnicos = new Set(minhaMao.join("-").split("-"));
+    pontuacao += numerosUnicos.size * 3;
+
+    console.log(pontuacao, pedra, numerosUnicos);
     if (pontuacao > melhorPontuacao) {
       melhorJogada = possibilidade;
       melhorPontuacao = pontuacao;
