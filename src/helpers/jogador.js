@@ -1,3 +1,5 @@
+import Config from "../config.js";
+
 export class Jogador {
   constructor() {
     this.jogadas = new Map();
@@ -13,7 +15,7 @@ export class Jogador {
       pontuacaoParcial -=
         passouPontas.has(lado) &&
         possibilidade.pedra.split("-").includes(lado.toString())
-          ? 10
+          ? Config.PRIORIDADE.MEDIA
           : 0;
     }
 
@@ -24,7 +26,7 @@ export class Jogador {
           : ultimaJogada.pedra.split("-")[1];
 
       if (possibilidade.pedra.split("-").includes(ladoUltimaJogada)) {
-        pontuacaoParcial += 10;
+        pontuacaoParcial += Config.PRIORIDADE.MEDIA;
       }
     }
 
@@ -43,7 +45,7 @@ export class Jogador {
       possibilidade.pedra.split("-").includes(ladoUltimaJogada) &&
       mesa.includes(Number(ladoUltimaJogada));
 
-    return eParceiroJogouDesteLado ? 10 : 0;
+    return eParceiroJogouDesteLado ? Config.PRIORIDADE.ALTA : 0;
   }
 
   salvarParceiro({ passouPontas, possibilidade, lado }) {
@@ -51,7 +53,7 @@ export class Jogador {
       passouPontas.has(lado) &&
       possibilidade.pedra.split("-").includes(lado.toString());
 
-    return eParceiroPassouNesseLado ? 10 : 0;
+    return eParceiroPassouNesseLado ? Config.PRIORIDADE.MEDIA : 0;
   }
 
   simularDistribuicaoPedras({ jogo, possibilidade, estado, jogadores }) {
@@ -92,7 +94,7 @@ export class Jogador {
               !pedraSplit.includes(pedraPossibilidade[0]) &&
               !pedraSplit.includes(pedraPossibilidade[1])
             ) {
-              pontuacaoJogada += 10;
+              pontuacaoJogada += Config.PRIORIDADE.ALTA;
             }
           }
         }
@@ -118,12 +120,12 @@ export class Jogador {
         frequenciaMesaEsquerda < frequenciaMesaDireita &&
         pedra.includes(mesaEsquerda)
       ) {
-        pontuacao += 10;
+        pontuacao += Config.PRIORIDADE.MEDIA;
       } else if (
         frequenciaMesaDireita < frequenciaMesaEsquerda &&
         pedra.includes(mesaDireita)
       ) {
-        pontuacao += 10;
+        pontuacao += Config.PRIORIDADE.MEDIA;
       }
 
       const frequenciaEsquerda =
@@ -135,12 +137,12 @@ export class Jogador {
         frequenciaEsquerda > frequenciaDireita &&
         pedra.includes(mesaEsquerda)
       ) {
-        pontuacao -= 10;
+        pontuacao -= Config.PRIORIDADE.MEDIA;
       } else if (
         frequenciaDireita > frequenciaEsquerda &&
         pedra.includes(mesaDireita)
       ) {
-        pontuacao -= 10;
+        pontuacao -= Config.PRIORIDADE.MEDIA;
       }
 
       if (
@@ -148,7 +150,7 @@ export class Jogador {
         pedra[0] === pedra[1] &&
         pedra[0] === mesaEsquerda
       ) {
-        pontuacao += 10;
+        pontuacao += Config.PRIORIDADE.ALTA;
       }
 
       const freqTotal = pedra.map(
@@ -158,7 +160,7 @@ export class Jogador {
       );
 
       if (freqTotal.some((freq) => freq <= 2)) {
-        pontuacao += 10;
+        pontuacao += Config.PRIORIDADE.MEDIA;
       }
     }
 

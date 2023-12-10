@@ -1,7 +1,7 @@
 export default {
   PRIORIDADE: {
-    ALTA: 5,
-    MEDIA: 3,
+    ALTA: 10,
+    MEDIA: 5,
     BAIXA: 1,
   },
 };

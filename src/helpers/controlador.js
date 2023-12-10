@@ -1,5 +1,6 @@
 import { Jogo } from "./jogo.js";
 import { Jogador } from "./jogador.js";
+import Config from "../config.js";
 
 const estado = new Jogo();
 const jogadores = new Map([
@@ -31,34 +32,34 @@ export async function controlador(jogo, possibilidades) {
     if (jogadores.has(idParceiro)) {
       const parceiro = jogadores.get(idParceiro);
 
-      pontuacao -= parceiro.evitarLadoParceiro({
+      pontuacao -= jogadorPrincipal.evitarLadoParceiro({
         ultimaJogada: parceiro.ultimaJogada,
         possibilidade,
         mesa: [mesaEsquerda, mesaDireita],
       });
 
       pontuacao +=
-        parceiro.salvarParceiro({
+        jogadorPrincipal.salvarParceiro({
           passouPontas: parceiro.passouPontas,
           possibilidade,
           lado: mesaEsquerda,
         }) + parceiro.iniciouPartida
-          ? 10
+          ? Config.PRIORIDADE.ALTA
           : 0;
 
       pontuacao +=
-        parceiro.salvarParceiro({
+        jogadorPrincipal.salvarParceiro({
           passouPontas: parceiro.passouPontas,
           possibilidade,
           lado: mesaDireita,
         }) + parceiro.iniciouPartida
-          ? 10
+          ? Config.PRIORIDADE.ALTA
           : 0;
     }
 
     const pedra = possibilidade.pedra.split("-").map(Number);
     pontuacao += pedra[0] + pedra[1];
-    pontuacao += pedra[0] === pedra[1] ? 100 : 0;
+    pontuacao += pedra[0] === pedra[1] ? Config.PRIORIDADE.ALTA : 0;
 
     const idOponente = estado.obterProximoJogador(jogo.jogador);
     if (jogadores.has(idOponente)) {
