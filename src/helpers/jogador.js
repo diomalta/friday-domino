@@ -8,6 +8,24 @@ export class Jogador {
     this.ultimaJogada = null;
   }
 
+  analisarProbabilidadeDePedras(possibilidade, pedrasRestantes) {
+    let pontuacao = 0;
+
+    for (const pedraRestante of pedrasRestantes) {
+      const [lado1, lado2] = pedraRestante.split("-").map(Number);
+      const peso = lado1 + lado2;
+
+      if (
+        possibilidade.pedra.includes(lado1.toString()) ||
+        possibilidade.pedra.includes(lado2.toString())
+      ) {
+        pontuacao += peso;
+      }
+    }
+
+    return pontuacao;
+  }
+
   marcarOponente({ passouPontas, ultimaJogada, possibilidade, extremos }) {
     let pontuacaoParcial = 0;
 
@@ -15,7 +33,7 @@ export class Jogador {
       pontuacaoParcial -=
         passouPontas.has(lado) &&
         possibilidade.pedra.split("-").includes(lado.toString())
-          ? Config.PRIORIDADE.MEDIA
+          ? Config.PRIORIDADE.ALTA * 3
           : 0;
     }
 
@@ -26,7 +44,7 @@ export class Jogador {
           : ultimaJogada.pedra.split("-")[1];
 
       if (possibilidade.pedra.split("-").includes(ladoUltimaJogada)) {
-        pontuacaoParcial += Config.PRIORIDADE.MEDIA;
+        pontuacaoParcial += Config.PRIORIDADE.ALTA * 2;
       }
     }
 
@@ -53,7 +71,7 @@ export class Jogador {
       passouPontas.has(lado) &&
       possibilidade.pedra.split("-").includes(lado.toString());
 
-    return eParceiroPassouNesseLado ? Config.PRIORIDADE.MEDIA : 0;
+    return eParceiroPassouNesseLado ? Config.PRIORIDADE.ALTA : 0;
   }
 
   simularDistribuicaoPedras({ jogo, possibilidade, estado, jogadores }) {

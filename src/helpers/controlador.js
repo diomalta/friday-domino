@@ -11,6 +11,7 @@ const jogadores = new Map([
 ]);
 
 export async function controlador(jogo, possibilidades) {
+  estado.calcularPedrasRestantes(jogo, estado);
   estado.calcularFrequencia(jogo.mao, jogo.mesa);
 
   let melhorJogada = null;
@@ -44,7 +45,7 @@ export async function controlador(jogo, possibilidades) {
           possibilidade,
           lado: mesaEsquerda,
         }) + parceiro.iniciouPartida
-          ? Config.PRIORIDADE.ALTA
+          ? Config.PRIORIDADE.MEDIA
           : 0;
 
       pontuacao +=
@@ -53,13 +54,20 @@ export async function controlador(jogo, possibilidades) {
           possibilidade,
           lado: mesaDireita,
         }) + parceiro.iniciouPartida
-          ? Config.PRIORIDADE.ALTA
+          ? Config.PRIORIDADE.MEDIA
           : 0;
     }
 
     const pedra = possibilidade.pedra.split("-").map(Number);
     pontuacao += pedra[0] + pedra[1];
-    pontuacao += pedra[0] === pedra[1] ? Config.PRIORIDADE.ALTA : 0;
+    pontuacao +=
+      pedra[0] === pedra[1]
+        ? Config.PRIORIDADE.ALTA * 7 -
+          [...estado.pedrasDisponiveis.values()].filter(
+            (p) =>
+              p.includes(pedra[0].toString()) || p.includes(pedra[1].toString())
+          ).length
+        : 0;
 
     const idOponente = estado.obterProximoJogador(jogo.jogador);
     if (jogadores.has(idOponente)) {
@@ -91,13 +99,12 @@ export async function controlador(jogo, possibilidades) {
       estado,
     });
 
-    // Bônus por diversidade na mão
-    const minhaMao = [...jogo.mao].filter(
-      (pedra) => possibilidade.pedra !== pedra
-    );
+    // const minhaMao = [...jogo.mao].filter(
+    //   (pedra) => possibilidade.pedra !== pedra
+    // );
 
-    const numerosUnicos = new Set(minhaMao.join("-").split("-"));
-    pontuacao += numerosUnicos.size * 2;
+    // const numerosUnicos = new Set(minhaMao.join("-").split("-"));
+    // pontuacao += numerosUnicos.size * Config.PRIORIDADE.ALTA;
 
     console.log(pontuacao, pedra);
     if (pontuacao > melhorPontuacao) {

@@ -16,6 +16,17 @@ export class Jogo {
     }
   }
 
+  calcularPedrasRestantes(jogo, estado) {
+    const pedrasRestantes = new Set(estado.pedrasDisponiveis);
+    for (const pedra of jogo.mao) {
+      pedrasRestantes.delete(pedra);
+    }
+    for (const pedra of jogo.mesa) {
+      pedrasRestantes.delete(pedra);
+    }
+    return pedrasRestantes;
+  }
+
   obterExtremos(mesa) {
     return [Number(mesa[0][0]), Number(mesa[mesa.length - 1][2])];
   }
