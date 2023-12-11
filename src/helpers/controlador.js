@@ -45,18 +45,6 @@ export async function controlador(jogo, possibilidades) {
       });
     }
 
-    const idOponente2 = estado.obterProximoJogador(idOponente);
-    if (jogadores.has(idOponente2)) {
-      const oponente2 = jogadores.get(idOponente2);
-
-      pontuacao += jogadorPrincipal.marcarOponente({
-        passouPontas: oponente2.passouPontas,
-        ultimaJogada: oponente2.ultimaJogada,
-        possibilidade,
-        extremos: [mesaEsquerda, mesaDireita],
-      });
-    }
-
     pontuacao += jogadorPrincipal.estrategiaPorFrequencia({
       possibilidade,
       extremos: [mesaEsquerda, mesaDireita],
