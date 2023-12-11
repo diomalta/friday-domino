@@ -8,24 +8,6 @@ export class Jogador {
     this.ultimaJogada = null;
   }
 
-  analisarProbabilidadeDePedras(possibilidade, pedrasRestantes) {
-    let pontuacao = 0;
-
-    for (const pedraRestante of pedrasRestantes) {
-      const [lado1, lado2] = pedraRestante.split("-").map(Number);
-      const peso = lado1 + lado2;
-
-      if (
-        possibilidade.pedra.includes(lado1.toString()) ||
-        possibilidade.pedra.includes(lado2.toString())
-      ) {
-        pontuacao += peso;
-      }
-    }
-
-    return pontuacao;
-  }
-
   marcarOponente({ passouPontas, ultimaJogada, possibilidade, extremos }) {
     let pontuacaoParcial = 0;
 
@@ -33,7 +15,7 @@ export class Jogador {
       pontuacaoParcial -=
         passouPontas.has(lado) &&
         possibilidade.pedra.split("-").includes(lado.toString())
-          ? Config.PRIORIDADE.ALTA * 3
+          ? Config.PRIORIDADE.MEDIA
           : 0;
     }
 
@@ -44,7 +26,7 @@ export class Jogador {
           : ultimaJogada.pedra.split("-")[1];
 
       if (possibilidade.pedra.split("-").includes(ladoUltimaJogada)) {
-        pontuacaoParcial += Config.PRIORIDADE.ALTA * 2;
+        pontuacaoParcial += Config.PRIORIDADE.MEDIA;
       }
     }
 
@@ -63,7 +45,7 @@ export class Jogador {
       possibilidade.pedra.split("-").includes(ladoUltimaJogada) &&
       mesa.includes(Number(ladoUltimaJogada));
 
-    return eParceiroJogouDesteLado ? Config.PRIORIDADE.ALTA : 0;
+    return eParceiroJogouDesteLado ? Config.PRIORIDADE.BAIXA : 0;
   }
 
   salvarParceiro({ passouPontas, possibilidade, lado }) {
@@ -71,7 +53,7 @@ export class Jogador {
       passouPontas.has(lado) &&
       possibilidade.pedra.split("-").includes(lado.toString());
 
-    return eParceiroPassouNesseLado ? Config.PRIORIDADE.ALTA : 0;
+    return eParceiroPassouNesseLado ? Config.PRIORIDADE.BAIXA : 0;
   }
 
   simularDistribuicaoPedras({ jogo, possibilidade, estado, jogadores }) {
@@ -168,7 +150,7 @@ export class Jogador {
         pedra[0] === pedra[1] &&
         pedra[0] === mesaEsquerda
       ) {
-        pontuacao += Config.PRIORIDADE.ALTA;
+        pontuacao += Config.PRIORIDADE.MEDIA;
       }
 
       const freqTotal = pedra.map(
