@@ -11,7 +11,8 @@ const jogadores = new Map([
 ]);
 
 export async function controlador(jogo, possibilidades) {
-  estado.calcularPedrasRestantes(jogo, estado);
+  estado.carregarDadosJogadores(jogo, jogadores);
+  const pedrasRestantes = estado.calcularPedrasRestantes(jogo, estado);
   estado.calcularFrequencia(jogo.mao, jogo.mesa);
 
   let melhorJogada = null;
@@ -51,11 +52,16 @@ export async function controlador(jogo, possibilidades) {
       estado,
     });
 
-    const minhaMao = [...jogo.mao].filter(
-      (pedra) => possibilidade.pedra !== pedra
-    );
+    pontuacao +=
+      jogadorPrincipal.calcularRaridadePedra(
+        possibilidade.pedra,
+        pedrasRestantes
+      ) * 10;
 
-    const numerosUnicos = new Set(minhaMao.join("-").split("-"));
+    const minhaMao = jogo.mao.filter((pedra) => pedra !== possibilidade.pedra);
+    const numerosUnicos = new Set(
+      minhaMao.flatMap((pedra) => pedra.split("-").map(Number))
+    );
     pontuacao += numerosUnicos.size;
 
     console.log(pontuacao, pedra);

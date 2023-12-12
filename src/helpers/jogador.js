@@ -45,7 +45,7 @@ export class Jogador {
       possibilidade.pedra.split("-").includes(ladoUltimaJogada) &&
       mesa.includes(Number(ladoUltimaJogada));
 
-    return eParceiroJogouDesteLado ? Config.PRIORIDADE.BAIXA : 0;
+    return eParceiroJogouDesteLado ? Config.PRIORIDADE.MEDIA : 0;
   }
 
   salvarParceiro({ passouPontas, possibilidade, lado }) {
@@ -120,12 +120,12 @@ export class Jogador {
         frequenciaMesaEsquerda < frequenciaMesaDireita &&
         pedra.includes(mesaEsquerda)
       ) {
-        pontuacao += Config.PRIORIDADE.MEDIA;
+        pontuacao += Config.PRIORIDADE.ALTA;
       } else if (
         frequenciaMesaDireita < frequenciaMesaEsquerda &&
         pedra.includes(mesaDireita)
       ) {
-        pontuacao += Config.PRIORIDADE.MEDIA;
+        pontuacao += Config.PRIORIDADE.ALTA;
       }
 
       const frequenciaEsquerda =
@@ -165,5 +165,31 @@ export class Jogador {
     }
 
     return pontuacao;
+  }
+
+  #calcularFrequenciaNumeros(pedrasRestantes) {
+    const frequencia = new Map();
+
+    [...pedrasRestantes].forEach((pedra) => {
+      const lados = pedra.split("-").map(Number);
+      lados.forEach((lado) => {
+        frequencia.set(lado, (frequencia.get(lado) || 0) + 1);
+      });
+    });
+
+    return frequencia;
+  }
+
+  calcularRaridadePedra(pedra, pedrasRestantes) {
+    const frequenciaNumeros = this.#calcularFrequenciaNumeros(pedrasRestantes);
+    const ladosPedra = pedra.split("-").map(Number);
+
+    let raridade = 0;
+
+    ladosPedra.forEach((lado) => {
+      raridade += 1 / (frequenciaNumeros.get(lado) || 1);
+    });
+
+    return raridade / ladosPedra.length;
   }
 }

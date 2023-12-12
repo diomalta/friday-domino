@@ -61,10 +61,10 @@ export class Jogo {
     }
   }
 
-  carregarDadosJogadores(jogo) {
+  carregarDadosJogadores(jogo, jogadores) {
     let proximoJogador = jogo.jogador;
     for (const { jogador, pedra, lado } of jogo.jogadas) {
-      const detalhesJogador = this.jogadores.get(jogador);
+      const detalhesJogador = jogadores.get(jogador);
       detalhesJogador.ultimaJogada = { pedra, lado };
 
       if (pedra === "6-6") {
@@ -77,13 +77,13 @@ export class Jogo {
 
       if (proximoJogador !== jogador) {
         const estadoAnteriorMesa = jogo.mesa.filter((pedra) =>
-          mesaParcial.has(pedra)
+          this.mesaParcial.has(pedra)
         );
 
         if (estadoAnteriorMesa.length > 0) {
           const [esquerda, direita] = this.obterExtremos(estadoAnteriorMesa);
 
-          const jogadorPassou = this.jogadores.get(proximoJogador);
+          const jogadorPassou = jogadores.get(proximoJogador);
           jogadorPassou.passouPontas.add(esquerda);
           jogadorPassou.passouPontas.add(direita);
         }
@@ -93,8 +93,8 @@ export class Jogo {
         proximoJogador = this.obterProximoJogador(proximoJogador);
       }
 
-      if (!mesaParcial.has(pedra)) {
-        mesaParcial.add(pedra);
+      if (!this.mesaParcial.has(pedra)) {
+        this.mesaParcial.add(pedra);
       }
     }
   }
