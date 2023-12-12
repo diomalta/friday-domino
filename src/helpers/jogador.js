@@ -159,8 +159,8 @@ export class Jogador {
           (estado.frequenciaMesa.get(num.toString()) || 0)
       );
 
-      if (freqTotal.some((freq) => freq <= 2)) {
-        pontuacao += Config.PRIORIDADE.MEDIA;
+      if (freqTotal.some((freq) => (freq) => 5)) {
+        pontuacao += Config.PRIORIDADE.ALTA;
       }
     }
 
